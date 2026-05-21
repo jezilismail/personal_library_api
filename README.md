@@ -1,8 +1,8 @@
-### Personal Library API
+# Personal Library API
 
 ## A simple CRUD API for managing a collection of books
 
-# Docs to Code Series - Project 1
+### Docs to Code Series - Project 1
 
 At this day and age of AI, why am I building a CRUD app?
 
@@ -20,7 +20,7 @@ I am not using database, auth, or any other complexity. rather, data will be sto
 - user can get book(s) - not decided if it is text search
 - user can delete books
 
-# Project description from Claude:
+### Project description from Claude:
 
 **Project 1 — Personal Library API**
 A simple CRUD API for managing a collection of books. No database yet — use in-memory storage (a Python dict or list).
