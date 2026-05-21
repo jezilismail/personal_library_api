@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Path
 from typing import Annotated
 from pydantic import BaseModel
 
@@ -19,6 +19,7 @@ class BookCreate(BaseModel):
 
 Library: list[BookCreate] = []
 
+# POST books
 def create_new_id():
     last_id = int(Library[-1].book_id[2:]) if len(Library) else 0
     new_book_id = last_id + 1
@@ -63,26 +64,32 @@ async def add_books(
     
     return {"message": "Error adding books!"}
 
-# @app.get("/books")
-# async def get_books():
-#     return {"library": library}
 
+# GET books
+def find_book_by_id(book_id: str):
+    req_book = filter(lambda book: book.book_id == book_id, Library).__next__()
+    # not implemented exception handling for book_id not found
+    return req_book
 
-
-# @app.post("/books")
-# async def add_book(book: Book):
-#     # case 1: empty values
-#     if not (book.book_id and book.name):
-#         return {"message": "Book `name` and `book_id` cannot be empty!"}
+@app.get("/get-books/{book_id}")
+async def get_book(
+    book_id: Annotated[
+        str, 
+        Path(
+            title="Id of the requesting book", 
+            pattern="^bk[0-9][0-9][0-9]"
+        )
+    ]):
     
-#     # case 2: duplicate id
-#     if len(library) and book.book_id in [item["book_id"] for item in library]:
-#         return {"message": "A book with same `book_id` already exists!"}
-    
-#     # case 3: book_id format validation
-#     if book.book_id[:2] != 'bk' or not book.book_id[2:].isdigit():
-#         return {"message": "Invalid `book_id`!"} 
-    
-#     library.append({**book.model_dump()})
+    book = find_book_by_id(book_id)    
+    return book
 
-#     return {"message": f"New book added successfully", "library": library}
+@app.get("/get-books/")
+async def get_books(
+        start_indx: Annotated[int | None, Query(alias="start")] = 0, 
+        end_indx: Annotated[int | None, Query(alias="end")] = 5
+    ):
+
+    return Library[start_indx : end_indx]
+
+

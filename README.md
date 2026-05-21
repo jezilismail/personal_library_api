@@ -24,14 +24,19 @@ I am not using database, auth, or any other complexity. rather, data will be sto
 
 note: on previous commit you will find different routes from what is present now, the reason is because i did a full rewrite, so basically I started fresh.
 
-- `/add-books/` route will accept book data and write to the storage list `Library`
+- `/add-books/` route created with POST method, it will accept book data and write to the storage list `Library`
 - currently accepts one or more(max=9) books as dict of `Book` datatype.
 - adding multiple books require the count of books[range(1, 10)] as query parameter, the purpose of `count` is to put a limit to the books passed in request body[ note: i havent looked into more details of req body, later if i learn that we can enforce limits then i will modify the code. also I wanted to implement query parameters because I just learned about it so I enforced the limit using that.]
+- `/get-books/{book_id}` and `/get-books/` routes created with GET methods.
+- you can get book by id and also get a list of books by range using start and end indexes as query parameters.
+- exception handling is not implemented yet, I understand it is very much needed now but I will be doing that later, and also response model is not set, will do later
 
 ### Documentations refered:
 
 - https://fastapi.tiangolo.com/tutorial/query-params-str-validations
 - https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters
+- https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/
+- https://www.w3schools.com/python/python_regex.asp
 
 ### Project description from Claude:
 
