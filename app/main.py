@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Query, Path
+from fastapi import FastAPI, Query, Path, Body
 from typing import Annotated
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI(
     title="Personal Library API",
@@ -11,11 +11,18 @@ class Book(BaseModel):
     book_name: str
     author_name: str
     price: int | None = 0
-    genre: str | None = 'Generic'
+    genres: set[str] = set()
 
 class BookCreate(BaseModel):
     book_id: str
     book: Book
+
+class FetchParams(BaseModel):
+    model_config = {"extra": "ignore"}
+
+    start_indx: int | None = Field(ge=0, alias="start", default=0)
+    end_indx: int | None = Field(lt=100, alias="end", default=5)
+
 
 Library: list[BookCreate] = []
 
@@ -38,7 +45,7 @@ def add_new_book(book: Book):
 
 @app.post("/add-books/")
 async def add_books(
-    books: list[Book], 
+    books: list[Book] | None = None, 
     count: Annotated[
         int | None, 
         Query(
@@ -49,19 +56,20 @@ async def add_books(
         )
     ] = None):
 
-    if count and len(books) == count:
-        result = []
-        for book in books:
-            result.append(add_new_book(book)["book"])        
-        return {"message": "Success", "books": result}
-    
-    if not count and len(books) == 1:
-        result = add_new_book(books[0])
-        return result
-    
-    if len(books) > 1 and not count or len(books) != count:
-        return {"message": "Number of books does not match the count in query!"}
-    
+    if books:
+        if count and len(books) == count:
+            result = []
+            for book in books:
+                result.append(add_new_book(book)["book"])        
+            return {"message": "Success", "books": result}
+        
+        if not count and len(books) == 1:
+            result = add_new_book(books[0])
+            return result
+        
+        if len(books) > 1 and not count or len(books) != count:
+            return {"message": "Number of books does not match the count in query!"}
+        
     return {"message": "Error adding books!"}
 
 
@@ -77,6 +85,7 @@ async def get_book(
         str, 
         Path(
             title="Id of the requesting book", 
+            # look into pydantic custom validators
             pattern="^bk[0-9][0-9][0-9]"
         )
     ]):
@@ -85,11 +94,41 @@ async def get_book(
     return book
 
 @app.get("/get-books/")
-async def get_books(
-        start_indx: Annotated[int | None, Query(alias="start")] = 0, 
-        end_indx: Annotated[int | None, Query(alias="end")] = 5
-    ):
+async def get_books(fetch_query: Annotated[FetchParams, Query()]):
 
-    return Library[start_indx : end_indx]
+    return Library[fetch_query.start_indx : fetch_query.end_indx]
 
 
+# DELETE books
+def del_book_by_id(book_id: str):
+    del_book = filter(lambda book: book.book_id == book_id, Library).__next__()
+    Library.remove(del_book)
+    
+    return {"message": "Removed book successfully."}
+
+@app.delete("/remove-books/{book_id}")
+async def remove_book(book_id: Annotated[str, Path(pattern="^bk[0-9][0-9][0-9]")]):
+    res = del_book_by_id(book_id)
+
+    return res
+
+@app.delete("/remove-books/")
+async def remove_books(limit: int, offset: int):
+    del Library[offset : offset + limit]
+    
+    return {"message": "Removed books successfully."}
+
+
+#  UPDATE book
+def put_book(book_id: str, book: Book):
+    put_book = filter(lambda book: book.book_id == book_id, Library).__next__()
+    indx = Library.index(put_book)
+    Library[indx].book = book
+
+    return {"message": "Book updated successfully."}
+
+@app.put("/update-book/{book_id}")
+async def update_book(book_id: Annotated[str, Path(pattern="^bk[0-9][0-9][0-9]")], book: Annotated[Book, Body()]):
+    res = put_book(book_id, book)
+
+    return res

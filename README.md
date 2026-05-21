@@ -22,14 +22,19 @@ I am not using database, auth, or any other complexity. rather, data will be sto
 
 ### What is implemented so far?
 
-note: on previous commit you will find different routes from what is present now, the reason is because i did a full rewrite, so basically I started fresh.
-
 - `/add-books/` route created with POST method, it will accept book data and write to the storage list `Library`
 - currently accepts one or more(max=9) books as dict of `Book` datatype.
 - adding multiple books require the count of books[range(1, 10)] as query parameter, the purpose of `count` is to put a limit to the books passed in request body[ note: i havent looked into more details of req body, later if i learn that we can enforce limits then i will modify the code. also I wanted to implement query parameters because I just learned about it so I enforced the limit using that.]
 - `/get-books/{book_id}` and `/get-books/` routes created with GET methods.
 - you can get book by id and also get a list of books by range using start and end indexes as query parameters.
 - exception handling is not implemented yet, I understand it is very much needed now but I will be doing that later, and also response model is not set, will do later
+- implemented pydantic models for query parameter, making it reusable
+- created new routes: `/remove-books/{book_id}`, `/remove-books/`, `/update-book/{book_id}`
+- now the app has full CRUD endpoints:
+  -> user can CREATE one or more books at a time
+  -> user can READ book by id or by range
+  -> user can DELETE book by id or range
+  -> user can UPDATE book by id
 
 ### Documentations refered:
 
@@ -37,6 +42,9 @@ note: on previous commit you will find different routes from what is present now
 - https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters
 - https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/
 - https://www.w3schools.com/python/python_regex.asp
+- https://fastapi.tiangolo.com/tutorial/query-param-models/
+- https://fastapi.tiangolo.com/tutorial/body-multiple-params/
+- https://docs.python.org/3/tutorial/datastructures.html
 
 ### Project description from Claude:
 
