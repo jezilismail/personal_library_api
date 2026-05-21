@@ -20,6 +20,19 @@ I am not using database, auth, or any other complexity. rather, data will be sto
 - user can get book(s) - not decided if it is text search
 - user can delete books
 
+### What is implemented so far?
+
+note: on previous commit you will find different routes from what is present now, the reason is because i did a full rewrite, so basically I started fresh.
+
+- `/add-books/` route will accept book data and write to the storage list `Library`
+- currently accepts one or more(max=9) books as dict of `Book` datatype.
+- adding multiple books require the count of books[range(1, 10)] as query parameter, the purpose of `count` is to put a limit to the books passed in request body[ note: i havent looked into more details of req body, later if i learn that we can enforce limits then i will modify the code. also I wanted to implement query parameters because I just learned about it so I enforced the limit using that.]
+
+### Documentations refered:
+
+- https://fastapi.tiangolo.com/tutorial/query-params-str-validations
+- https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters
+
 ### Project description from Claude:
 
 **Project 1 — Personal Library API**
