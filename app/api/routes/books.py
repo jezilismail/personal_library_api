@@ -1,114 +1,65 @@
-from fastapi import APIRouter, Query, Path, Body
+'''
+endpoints:
+post:/book/ -> takes individual book data and return new book id
+get:/book/{book_id} -> fetch book by id and return the book
+put:/book/{book_id} -> takes book data and id and update book by id and return updated book
+delete:/book/{book_id} -> delete book by id and return success message + deleted book_id
+'''
+
+from fastapi import APIRouter, Body, Path, status, HTTPException
 from typing import Annotated
-from app.schemas.models import Book, BookCreate, FetchParams
+from app.schemas.models import Book, BookData, BookDeleteResponse
+from app.utils.process_book import add_new_book, find_book_by_id, update_book_by_id, delete_book_by_id
 
 router = APIRouter()
 
-Library: list[BookCreate] = []
 
-def create_new_id():
-    last_id = int(Library[-1].book_id[2:]) if len(Library) else 0
-    new_book_id = last_id + 1
-    i = 3 - len(str(new_book_id))
-    new_book_id = 'bk' + ('0' * i if i > 0 else '') + str(new_book_id)
-
-    return new_book_id
-
-def add_new_book(book: Book):
-    book_id = create_new_id()
-    new_book = BookCreate(book_id=book_id, book=book)
-    Library.append(new_book)
-
-    return {"message": "Book created successfully.", "book": {"book_id": book_id, **book.model_dump()}}
-
-def find_book_by_id(book_id: str):
-    req_book = filter(lambda book: book.book_id == book_id, Library).__next__()
-    # not implemented exception handling for book_id not found
-    return req_book
-
-def del_book_by_id(book_id: str):
-    del_book = filter(lambda book: book.book_id == book_id, Library).__next__()
-    Library.remove(del_book)
-    
-    return {"message": "Removed book successfully."}
-
-def put_book(book_id: str, book: Book):
-    put_book = filter(lambda book: book.book_id == book_id, Library).__next__()
-    indx = Library.index(put_book)
-    Library[indx].book = book
-
-    return {"message": "Book updated successfully."}
+# POST
+@router.post("/book/", response_model=BookData, status_code=status.HTTP_201_CREATED)
+async def post_book(book: Annotated[Book, Body(title="Add book to library")]):
+    result = add_new_book(book)
+    return result
 
 
-# POST books
-@router.post("/add-books/")
-async def add_books(
-    books: list[Book] | None = None, 
-    count: Annotated[
-        int | None, 
-        Query(
-            title="Number of books", 
-            description="This query parameter represents the number of books in the request body and is required if multiple books are to be added at a time, value can only range from 2 - 9, it should be left empty if only one book is being added.", 
-            gt=1, 
-            lt=10
-        )
-    ] = None):
-
-    if books:
-        if count and len(books) == count:
-            result = []
-            for book in books:
-                result.append(add_new_book(book)["book"])        
-            return {"message": "Success", "books": result}
-        
-        if not count and len(books) == 1:
-            result = add_new_book(books[0])
-            return result
-        
-        if len(books) > 1 and not count or len(books) != count:
-            return {"message": "Number of books does not match the count in query!"}
-        
-    return {"message": "Error adding books!"}
+# GET
+@router.get("/book/{book_id}", response_model=BookData)
+async def get_book(book_id: Annotated[str, Path(title="Book ID", pattern="^bk[0-9][0-9][0-9][0-9]")]):
+    result = find_book_by_id(book_id)
+    if result == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found!")
+    return result
 
 
-# GET books
-@router.get("/get-books/{book_id}")
-async def get_book(
+# PUT
+@router.put("/book/{book_id}")
+async def put_book(
     book_id: Annotated[
         str, 
         Path(
-            title="Id of the requesting book", 
-            # look into pydantic custom validators
-            pattern="^bk[0-9][0-9][0-9]"
+            title="Book ID", 
+            pattern="^bk[0-9][0-9][0-9][0-9]"
+        )
+    ], 
+    book: Annotated[
+        Book, 
+        Body(
+            title="Update book in library"
         )
     ]):
-    
-    book = find_book_by_id(book_id)    
-    return book
 
-@router.get("/get-books/")
-async def get_books(fetch_query: Annotated[FetchParams, Query()]):
-
-    return Library[fetch_query.start_indx : fetch_query.end_indx]
-
-
-# DELETE books
-@router.delete("/remove-books/{book_id}")
-async def remove_book(book_id: Annotated[str, Path(pattern="^bk[0-9][0-9][0-9]")]):
-    res = del_book_by_id(book_id)
-
-    return res
-
-@router.delete("/remove-books/")
-async def remove_books(limit: int, offset: int):
-    del Library[offset : offset + limit]
-    
-    return {"message": "Removed books successfully."}
+    result = update_book_by_id(book_id, book)
+    if result == None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Book not found!"
+        )
+    return result
 
 
-#  UPDATE book
-@router.put("/update-book/{book_id}")
-async def update_book(book_id: Annotated[str, Path(pattern="^bk[0-9][0-9][0-9]")], book: Annotated[Book, Body()]):
-    res = put_book(book_id, book)
-
-    return res
+# DELETE
+@router.delete("/book/{book_id}", response_model=BookDeleteResponse)
+async def delete_book(book_id: Annotated[str, Path(title="Book ID", pattern="^bk[0-9][0-9][0-9][0-9]")]):
+    result = delete_book_by_id(book_id)
+    if result == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found!")
+    return result

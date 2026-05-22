@@ -3,15 +3,25 @@ from pydantic import BaseModel, Field
 class Book(BaseModel):
     book_name: str
     author_name: str
-    price: int | None = 0
-    genres: set[str] = set()
+    price: float | None = 0
+    genres: list[str] = []
 
-class BookCreate(BaseModel):
-    book_id: str
-    book: Book
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "book_name": "Harry Potter and the Sorcerer's Stone",
+                    "author_name": "J.K. Rowling",
+                    "price": 19.99,
+                    "genres": ["Fantasy", "Adventure", "Young Adult"]
+                }
+            ]
+        }
+    }
 
-class FetchParams(BaseModel):
-    model_config = {"extra": "ignore"}
+class BookData(Book):
+    book_id: str = Field(pattern="^bk[0-9][0-9][0-9][0-9]")
 
-    start_indx: int | None = Field(ge=0, alias="start", default=0)
-    end_indx: int | None = Field(lt=100, alias="end", default=5)
+class BookDeleteResponse(BaseModel):
+    message: str = "Book deleted successfully."
+    book_id: str = Field(pattern="^bk[0-9][0-9][0-9][0-9]")
