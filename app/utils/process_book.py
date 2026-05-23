@@ -1,5 +1,10 @@
+from pathlib import Path
 from app.schemas.models import Book, BookDeleteResponse
 import json
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_FILE = BASE_DIR / "db" / "data.json"
+print(BASE_DIR, DATA_FILE)
 
 # create new id 
 def make_new_id(last_id: int):
@@ -12,7 +17,7 @@ def make_new_id(last_id: int):
 # add new book to data.json and return book+id
 # dependency: make_new_id()
 def add_new_book(book: Book):
-    with open('app/db/data.json', 'r') as data:
+    with open(DATA_FILE, 'r') as data:
         books = json.load(data)
         if len(books):
             new_id = make_new_id(int(books[-1]["book_id"][2:]))
@@ -21,7 +26,7 @@ def add_new_book(book: Book):
         new_book = {"book_id": new_id, **book.model_dump()}
         books.append(new_book)
     
-    with open('app/db/data.json', 'w') as file:
+    with open(DATA_FILE, 'w') as file:
         file.write(json.dumps(books))
 
     return new_book
@@ -34,7 +39,7 @@ def convert_id(book_id: str):
 # dependancy: convert_id()
 # return library data + book_indx of requested book_id
 def get_books_indx(book_id: str):
-    with open('app/db/data.json', 'r') as data:
+    with open(DATA_FILE, 'r') as data:
         books = json.load(data)
         id_lst = list(map(lambda book: convert_id(book["book_id"]), books))
         req_id = convert_id(book_id)
@@ -64,7 +69,7 @@ def update_book_by_id(book_id: str, book: Book):
     else: return None
     updated_book = books[book_indx]
     
-    with open('app/db/data.json', 'w') as file:
+    with open(DATA_FILE, 'w') as file:
         file.write(json.dumps(books))
 
     return updated_book
@@ -78,7 +83,7 @@ def delete_book_by_id(book_id: str) -> BookDeleteResponse | None:
         books.pop(book_indx)
     else: return None
 
-    with open('app/db/data.json', 'w') as file:
+    with open(DATA_FILE, 'w') as file:
         file.write(json.dumps(books))
         
     return BookDeleteResponse(message="Book deleted successfully.", book_id=book_id)
