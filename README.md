@@ -2,6 +2,8 @@
 
 ## A simple CRUD API for managing a collection of books
 
+[Checkout Project] project deployed on fastapi cloud: https://personal-library-api.fastapicloud.dev/docs
+
 ### Docs to Code Series - Project 1
 
 At this day and age of AI, why am I building a CRUD app?
@@ -23,9 +25,13 @@ Basic CRUD operations API: build routes and endpoints, handle path and query par
 ### What is implemented so far?
 
 - now the app has the following routes:
+
   -> post: /book
+
   -> get: /book/{book_id}
+
   -> put: /book/{book_id}
+  
   -> delete: /book/{book_id}
 
   -> get: /library query params for filtering books and pagination
