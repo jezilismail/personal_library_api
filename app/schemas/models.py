@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Literal
 
 class Book(BaseModel):
     book_name: str
@@ -25,3 +26,6 @@ class BookData(Book):
 class BookDeleteResponse(BaseModel):
     message: str = "Book deleted successfully."
     book_id: str = Field(pattern="^bk[0-9][0-9][0-9][0-9]")
+
+
+Genres =  Literal["Fantasy", "Adventure", "Young Adult", "Horror", "Sci-fi"]

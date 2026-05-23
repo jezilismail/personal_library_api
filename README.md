@@ -6,16 +6,19 @@
 
 At this day and age of AI, why am I building a CRUD app?
 
-This project was a recomendation from Claude when I asked it for project ideas that I can build by myself using just documentations and not AI, the intention is to learn backend engineering by implementation.
-This is first of many projects it recommended, future projects increases in complexity.
-I had asked it to come up with the projects so that by the end of this series I would become an expert software engineer(hopefully, if i ever complete them). Projects were decided based on backend engineering concepts and each project will build on top of concepts from previous ones.
+The idea is to only rely on documentations for learning SWE by building projects and not using AI to build projects.
+
+I have decided to suffer this way because AI in coding has made the concept of "building projects to land jobs" totally obsolete because anyone can spin up 10 projects in a night with a base plan from Claude Code. So I feel interviewers and employers dont trust projects anymore. Attempting to build these projects by only reading docs is what I feel how I can show someone that I actually put in the effort and learned it.
+
+_So how do I prove that I am doing this on my own?_ - well, if you really want to validate, just look at all my commits and the evolution of my code in them. Because I am only starting to learn backend engineering, I am making the most "precious" stupid mistakes and as I learn more I am correcting them in later commits. this pattern will be seen in this project - which will be nearly impossible for an AI to mimic.
+
+I have tried to learn SWE by watching YT videos in the past but that has kept me in a comfort zone and havent learned much.
+
 This is purely an attempt at learning software development so I wouldnt have to switch to plan mode when someone asks me to build something usefull, rather I can start writing code like the legends of the past did.
 
-## Scope of version 0.1.0
+## Scope of project
 
-Basic CRUD operations - implemented.
-
-**Advancing to version 0.2.0**
+Basic CRUD operations API: build routes and endpoints, handle path and query params and body in requests, handle exceptions and use status codes, use proper request-response models for validation and documentation, structure the app like a pro.
 
 ### What is implemented so far?
 
@@ -25,22 +28,20 @@ Basic CRUD operations - implemented.
   -> put: /book/{book_id}
   -> delete: /book/{book_id}
 
+  -> get: /library query params for filtering books and pagination
+
 - user can create, update, fetch and delete one book at a time from the Library
 - I decided to use a JSON file to store the book data -> (The Library): this is because i had to split the main.py into a structured app as the file grew big so i thought I will store the data in a `db` folder.
 - the app is well structured in this version compared to the prev commit.
 - I added some basic HTTP exception handling in this version, will look into more advanced later on
 - I also defined response models this time.
 - Added example data for the post method.
-- Since i decided to use a JSON file to store the data I was able to look into file handling and JSON methods - not deep but the stuff that I needed here
-
-[
-note: i realised that the whole codebase was a mess and the logic werent right, i did a full rewrite of the app, I felt like starting fresh because the code looked messy but more than that it ws because i wanted to challenge myself if i can rebuild it again, this time not refering the docs unless i dont remember at all - because the prev version was mostly built at the same time i was reading the docs. and i am happy with the results!!
-]
+- Since i decided to use a JSON file to store the data I was able to look into file handling and JSON methods - not deep but the stuff that I needed here.
+- new /library route enables user to get books in a list with pagination and let the user filter by price and genre.
 
 ### Next what?
 
-- I am planning to re-introduce the use of query params in a new route - with more appropriate usecase rather than what I had done before
-- I will bring in more advanced search methods and other operations
+- I wish to include text search, i dont know yet how it should be done because what I have in mind is return the results as user is typing - I am not sure if this is done using normal requests - will look into it.
 
 ### Documentations refered:
 

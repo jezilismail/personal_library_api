@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes import books
+from app.api.routes import books, library
 
 app = FastAPI(
     title="Personal Library API",
@@ -7,3 +7,4 @@ app = FastAPI(
 )
 
 app.include_router(books.router)
+app.include_router(library.router)

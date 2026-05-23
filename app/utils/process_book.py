@@ -4,7 +4,6 @@ import json
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_FILE = BASE_DIR / "db" / "data.json"
-print(BASE_DIR, DATA_FILE)
 
 # create new id 
 def make_new_id(last_id: int):
